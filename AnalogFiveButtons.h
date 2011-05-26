@@ -91,6 +91,13 @@ class AnalogFiveButtons {
   const static byte BM_4 = 8;	/** mask defining button 4 */
   const static byte BM_5 = 16;	/** mask defining button 5 */
 
+  /** Returns if the given button has been pressed.
+      @return       true if the button transitioned from up to down
+   */
+  byte buttonPressed(byte button);
+
+  void clearButton(byte button);
+
   /** Returns the states of all buttons coded on a a char.
    */
   byte getState();
@@ -125,6 +132,7 @@ class AnalogFiveButtons {
   byte m_states[16];
   int m_ladder[16];
   byte m_currentStateIndex;
-  
+  byte m_buttonPressed;
+
 };
 

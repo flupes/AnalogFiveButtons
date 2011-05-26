@@ -129,6 +129,7 @@ byte AnalogFiveButtons::computeState(int analogReading)
 
 void AnalogFiveButtons::update()
 {
+  static byte previousStateIndex = 0;
   static int previousReading = 0;
   static unsigned int previousSampleTime = 0;
   static byte counter = 0;
@@ -149,6 +150,11 @@ void AnalogFiveButtons::update()
       if ( counter == m_debounceCount ) {
 	// compute the new state
 	m_currentStateIndex = computeState(currentReading);
+        if ( m_currentStateIndex != previousStateIndex ) {
+          m_buttonPressed = ~(m_states[previousStateIndex])
+            & m_states[m_currentStateIndex];
+          previousStateIndex = m_currentStateIndex;
+        }
 	counter = 0;
       }
 
@@ -162,6 +168,16 @@ void AnalogFiveButtons::update()
 boolean AnalogFiveButtons::getState(byte button)
 {
   return ( button & m_states[m_currentStateIndex] );
+}
+
+boolean AnalogFiveButtons::buttonPressed(byte button)
+{
+  return ( button & m_buttonPressed );
+}
+
+void AnalogFiveButtons::clearButton(byte button)
+{
+  m_buttonPressed = m_buttonPressed & ~button;
 }
 
 byte AnalogFiveButtons::getState()
