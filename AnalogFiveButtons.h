@@ -74,7 +74,7 @@ class AnalogFiveButtons {
   void setLadder(float refVoltage, uint16_t R[6]);
 
 
-  void setTiming(int msSampling, byte debounceCount);
+  void setTiming(uint16_t msSampling, uint8_t debounceCount);
 
   boolean removeState(byte state);
 
@@ -92,10 +92,14 @@ class AnalogFiveButtons {
   const static byte BM_5 = 16;	/** mask defining button 5 */
 
   /** Returns if the given button has been pressed.
+      @param button button, or button combination to get state for
       @return       true if the button transitioned from up to down
    */
   byte buttonPressed(byte button);
 
+  /** Mark the given button as a processed event.
+      @param button button, or button combination to clear
+  */
   void clearButton(byte button);
 
   /** Returns the states of all buttons coded on a a char.
@@ -120,14 +124,14 @@ class AnalogFiveButtons {
    */
   byte computeState(int analogReading);
 
-  uint8_t m_analogPin;		/** pin used to read the analog input */
-  float m_defaultAnalogRef;	/** default analog reference for the board */
-  int m_msSampling;		/** Required delay between 2 successive
-			readings (in ms) */
-  byte m_debounceCount;		/** Number of succesives readings need to 
-			be identical before we decide the voltage is stable */
-
   float m_refVoltage;		/** reference voltage at the top of the ladder */
+  float m_defaultAnalogRef;	/** default analog reference for the board */
+  uint8_t m_analogPin;		/** pin used to read the analog input */
+  uint8_t m_debounceCount;	/** Number of succesives readings need to 
+                                be identical before we decide the voltage is stable */
+
+  uint16_t m_msSampling;	/** Required delay between 2 successive
+                                readings (in ms) */
   uint16_t m_resistors[6];
   byte m_states[16];
   int16_t m_ladder[16];

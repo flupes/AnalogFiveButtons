@@ -5,7 +5,7 @@
 #include "wiring.h"
 
 AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) :
-  m_analogPin(analogPin), m_defaultAnalogRef(defaultAnalogRef),
+  m_defaultAnalogRef(defaultAnalogRef),  m_analogPin(analogPin),
   m_currentStateIndex(0)
 {
   m_refVoltage = 5.0;
@@ -40,7 +40,7 @@ AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) 
   computeLadder();
 }
 
-void AnalogFiveButtons::setTiming(int msSampling, byte debounceCount)
+void AnalogFiveButtons::setTiming(uint16_t msSampling, uint8_t debounceCount)
 {
   m_msSampling = msSampling;
   m_debounceCount = debounceCount;
