@@ -60,7 +60,7 @@ class AnalogFiveButtons {
       are using different resistors or a different reference voltage, you 
       need to use setLadder before using the object.
   */
-  AnalogFiveButtons(int analogPin, float defaultAnalogRef);
+  AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef);
   
   /** Define the resitor ladder.
       
@@ -71,7 +71,7 @@ class AnalogFiveButtons {
       switches 1 to 5. Note that because of the coding resitance more
       than 65K cannot be used...
   */
-  void setLadder(float refVoltage, word R[6]);
+  void setLadder(float refVoltage, uint16_t R[6]);
 
 
   void setTiming(int msSampling, byte debounceCount);
@@ -120,7 +120,7 @@ class AnalogFiveButtons {
    */
   byte computeState(int analogReading);
 
-  int m_analogPin;		/** pin used to read the analog input */
+  uint8_t m_analogPin;		/** pin used to read the analog input */
   float m_defaultAnalogRef;	/** default analog reference for the board */
   int m_msSampling;		/** Required delay between 2 successive
 			readings (in ms) */
@@ -128,9 +128,9 @@ class AnalogFiveButtons {
 			be identical before we decide the voltage is stable */
 
   float m_refVoltage;		/** reference voltage at the top of the ladder */
-  word m_resistors[6];
+  uint16_t m_resistors[6];
   byte m_states[16];
-  int m_ladder[16];
+  int16_t m_ladder[16];
   byte m_currentStateIndex;
   byte m_buttonPressed;
 

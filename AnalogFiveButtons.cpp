@@ -4,7 +4,7 @@
 
 #include "wiring.h"
 
-AnalogFiveButtons::AnalogFiveButtons(int analogPin, float defaultAnalogRef) :
+AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) :
   m_analogPin(analogPin), m_defaultAnalogRef(defaultAnalogRef),
   m_currentStateIndex(0)
 {
@@ -46,7 +46,7 @@ void AnalogFiveButtons::setTiming(int msSampling, byte debounceCount)
   m_debounceCount = debounceCount;
 }
 
-void AnalogFiveButtons::setLadder(float refVoltage, word R[6])
+void AnalogFiveButtons::setLadder(float refVoltage, uint16_t R[6])
 {
   m_refVoltage = refVoltage;
   for (byte i=0; i<6; i++) {
@@ -75,7 +75,7 @@ void AnalogFiveButtons::computeLadder()
 
   float Req;
   float Vout;
-  m_ladder[0] = (int)( 1024.0*m_refVoltage/m_defaultAnalogRef );
+  m_ladder[0] = (int16_t)( 1024.0f*(float)m_refVoltage/(float)m_defaultAnalogRef );
   for (byte i=1; i<16; i++) {
     Req = 1.0 / (
 		 ( BM_1 & m_states[i] ? 1.0/(float)m_resistors[1] : 0.0 ) +
@@ -84,8 +84,8 @@ void AnalogFiveButtons::computeLadder()
 		 ( BM_4 & m_states[i] ? 1.0/(float)m_resistors[4] : 0.0 ) +
 		 ( BM_5 & m_states[i] ? 1.0/(float)m_resistors[5] : 0.0 )
 		 );
-    Vout = m_refVoltage*Req/(Req+(float)m_resistors[0]);
-    m_ladder[i] = (int)( 1024.0*Vout/m_defaultAnalogRef );
+    Vout = (float)m_refVoltage*Req/(Req+(float)m_resistors[0]);
+    m_ladder[i] = (int16_t)( 1024.0f*(float)Vout/(float)m_defaultAnalogRef );
   }
 
 }
