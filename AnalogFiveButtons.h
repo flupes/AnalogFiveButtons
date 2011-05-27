@@ -71,7 +71,7 @@ class AnalogFiveButtons {
       switches 1 to 5. Note that because of the coding resitance more
       than 65K cannot be used...
   */
-  void setLadder(float refVoltage, uint16_t R[6]);
+  void setLadder(float refVoltage, uint16_t *R);
 
 
   void setTiming(uint16_t msSampling, uint8_t debounceCount);

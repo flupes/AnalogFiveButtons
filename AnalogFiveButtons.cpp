@@ -46,7 +46,7 @@ void AnalogFiveButtons::setTiming(uint16_t msSampling, uint8_t debounceCount)
   m_debounceCount = debounceCount;
 }
 
-void AnalogFiveButtons::setLadder(float refVoltage, uint16_t R[6])
+void AnalogFiveButtons::setLadder(float refVoltage, uint16_t *R)
 {
   m_refVoltage = refVoltage;
   for (byte i=0; i<6; i++) {
