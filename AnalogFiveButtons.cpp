@@ -184,3 +184,8 @@ byte AnalogFiveButtons::getState()
 {
   return m_states[m_currentStateIndex];
 }
+
+byte AnalogFiveButtons::getPressedState()
+{
+  return m_buttonPressed;
+}

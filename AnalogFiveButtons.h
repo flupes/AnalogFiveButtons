@@ -106,6 +106,8 @@ class AnalogFiveButtons {
    */
   byte getState();
 
+  byte getPressedState();
+
   /** Update the current button state by reading the analog pin
       and computing the resulting state.
    */
