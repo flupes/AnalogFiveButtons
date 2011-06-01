@@ -4,6 +4,10 @@
 
 #include "wiring.h"
 
+#ifdef A5B_DEBUG
+#include <HardwareSerial.h>
+#endif
+
 AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) :
   m_defaultAnalogRef(defaultAnalogRef),  m_analogPin(analogPin),
   m_currentStateIndex(0)
@@ -87,6 +91,14 @@ void AnalogFiveButtons::computeLadder()
     Vout = (float)m_refVoltage*Req/(Req+(float)m_resistors[0]);
     m_ladder[i] = (int16_t)( 1024.0f*(float)Vout/(float)m_defaultAnalogRef );
   }
+#ifdef A5B_DEBUG
+  for (byte i=0; i<16; i++) {
+    Serial.print("ladder[");
+    Serial.print(i, DEC);
+    Serial.print("] = ");
+    Serial.println(m_ladder[i]);
+  }
+#endif
 
 }
 
