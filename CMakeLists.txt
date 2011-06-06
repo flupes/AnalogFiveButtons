@@ -7,7 +7,7 @@ add_library(analog5b
 include_directories( ${libspath}/Wire )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libraries/ST7565 )
 
-add_program( UserInterface analog5b arduinolibs corearduino m )
+add_program( UserInterface analog5b st7565 arduinolibs corearduino m )
 
 #add_subdirectory ( tests )
 
