@@ -7,7 +7,8 @@
 #define BACKLIGHT_LED 3
 #define WAIT_LOOP 10
 
-#include "WProgram.h"
+#include "Arduino.h"
+
 void setup();
 void loop();
 ST7565 glcd(9, 8, 7, 6, 5);

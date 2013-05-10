@@ -1,8 +1,4 @@
-#include <WProgram.h>
-
 #include "AnalogFiveButtons.h"
-
-#include "wiring.h"
 
 #ifdef A5B_DEBUG
 #include <HardwareSerial.h>

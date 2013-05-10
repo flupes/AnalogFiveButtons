@@ -1,8 +1,12 @@
 //#include <stdint.h>
 
-#include <wiring.h>	// for types "byte" and "boolean"
+#if ARDUINO >= 100
+#include <Arduino.h>    // Is it possible to include less???
+#else
+#include <Wiring.h>	// for types "byte" and "boolean"
 			// wiring.h is required anyway in the 
 			// implementation for analogRead
+#endif
 
 /** AnalogFiveButtons provides the abstraction layer for a five button
     input device.
