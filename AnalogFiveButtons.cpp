@@ -1,8 +1,6 @@
 #include "AnalogFiveButtons.h"
 
-#ifdef A5B_DEBUG
-#include <HardwareSerial.h>
-#endif
+//#define A5B_DEBUG 1
 
 AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) :
   m_defaultAnalogRef(defaultAnalogRef),  m_analogPin(analogPin),
