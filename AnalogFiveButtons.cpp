@@ -2,6 +2,8 @@
 
 //#define A5B_DEBUG 1
 
+const byte AnalogFiveButtons::buttons[] = { BM_1, BM_2, BM_3, BM_4, BM_5 };
+
 AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) :
   m_defaultAnalogRef(defaultAnalogRef),  m_analogPin(analogPin),
   m_currentStateIndex(0)
@@ -150,17 +152,19 @@ void AnalogFiveButtons::update()
     int currentReading = analogRead(m_analogPin);
 
     // Check if the reading is not varying much from the previous
-    if ( abs(previousReading-currentReading) < 3 ) {
+    if ( abs(previousReading-currentReading) < 8 ) {
 
       counter++;	// new stable reading
       if ( counter == m_debounceCount ) {
 	// compute the new state
 	m_currentStateIndex = computeState(currentReading);
-        if ( m_currentStateIndex != previousStateIndex ) {
-          m_buttonPressed = ~(m_states[previousStateIndex])
-            & m_states[m_currentStateIndex];
-          previousStateIndex = m_currentStateIndex;
-        }
+        // Detect the button going down
+        // if ( m_currentStateIndex != previousStateIndex ) {
+        //   m_buttonPressed = 
+        //     ~(m_states[previousStateIndex]) & m_states[m_currentStateIndex];
+        //   previousStateIndex = m_currentStateIndex;
+        // }
+        m_buttonPressed |= m_states[m_currentStateIndex];
 	counter = 0;
       }
 
