@@ -94,18 +94,19 @@ class AnalogFiveButtons {
 
   boolean removeState(byte state);
 
-  /** Returns if the given button is pressed or not.
-      @param button	the button code. It is necessary to used the
-			defined constants B1 - B5.
-      @return		1 if the button is pressed, 0 otherwise
-   */
-  boolean getState(byte button);
-
   const static byte BM_1 = 1;	/** mask defining button 1 */
   const static byte BM_2 = 2;	/** mask defining button 2 */
   const static byte BM_3 = 4;	/** mask defining button 3 */
   const static byte BM_4 = 8;	/** mask defining button 4 */
   const static byte BM_5 = 16;	/** mask defining button 5 */
+  const static byte ALL_BUTTONS = BM_1 | BM_2 | BM_3 | BM_4 | BM_5;
+  const static byte buttons[5];
+
+  /** Returns if the given button is pressed or not.
+      @param button	the button code (BM_1 - BM_5)
+      @return		1 if the button is pressed, 0 otherwise
+   */
+  boolean getState(byte button);
 
   /**
      Returns if the given button has been pressed.
