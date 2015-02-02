@@ -2,13 +2,14 @@
 
 #include "AnalogFiveButtons.h"
 
-#define LOOP_PERIOD 25
-#define PRINT_PERIOD 500
+#define LOOP_PERIOD 5
+#define PRINT_PERIOD 1000
 
 AnalogFiveButtons a5b(A0, 3.3);
 word ladder[6] = { 4990, 22100, 9310, 4990, 2100, 909 };
 
 byte state = 0;
+byte pressed = 0;
 
 int counter = 0;
 unsigned long prevtime;
@@ -21,7 +22,7 @@ void setup() {
   a5b.setLadder(3.3, ladder);
   a5b.removeState(17);
   a5b.removeState(18);
-  a5b.setTiming(50, 2);
+  a5b.setTiming(10, 2);
 
   counter = 0;
   prevtime = millis();
@@ -42,13 +43,18 @@ void loop()
   unsigned long newtime = millis();
   int elapsed = newtime-prevtime;
   if ( elapsed > PRINT_PERIOD ) {
-    state = a5b.getPressedState();
-    Serial.println(state, BIN);
-    if ( state > 0 ) {
+    pressed = a5b.getPressedState();
+    for ( int i=0; i<5; i++ ) {
+      Serial.print(" | ");
+      Serial.print(pressed & AnalogFiveButtons::buttons[i], DEC);
+    }
+    Serial.println(" |");
+
+    if ( pressed > 0 ) {
       counter++;
     }
-    if ( counter == 6 ) {
-      a5b.clearButton(AnalogFiveButtons::BM_3);
+    if ( counter == 5 ) {
+      a5b.clearButton(AnalogFiveButtons::ALL_BUTTONS);
       counter = 0;
     }
     prevtime = newtime;
