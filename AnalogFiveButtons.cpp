@@ -1,6 +1,7 @@
 #include "AnalogFiveButtons.h"
 
-//#define A5B_DEBUG 1
+//#define A5B_STATE_DBG 1
+//#define A5B_TIMING_DBG 1
 
 const byte AnalogFiveButtons::buttons[] = { BM_1, BM_2, BM_3, BM_4, BM_5 };
 
@@ -18,7 +19,8 @@ AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) 
   m_resistors[5] = 1200;
 
   m_msSampling = 50;
-  m_debounceCount = 2;
+  m_debounceSamples = 2;
+  m_counter = m_debounceSamples;
   
   m_states[0] = 0;	// No button pressed
   m_states[1] = 1;	// B1 pressed
@@ -43,7 +45,8 @@ AnalogFiveButtons::AnalogFiveButtons(uint8_t analogPin, float defaultAnalogRef) 
 void AnalogFiveButtons::setTiming(uint16_t msSampling, uint8_t debounceCount)
 {
   m_msSampling = msSampling;
-  m_debounceCount = debounceCount;
+  m_debounceSamples = debounceCount;  
+  m_counter = m_debounceSamples;
 }
 
 void AnalogFiveButtons::setLadder(float refVoltage, uint16_t *R)
@@ -78,16 +81,16 @@ void AnalogFiveButtons::computeLadder()
   m_ladder[0] = (int16_t)( 1024.0f*(float)m_refVoltage/(float)m_defaultAnalogRef );
   for (byte i=1; i<16; i++) {
     Req = 1.0 / (
-		 ( BM_1 & m_states[i] ? 1.0/(float)m_resistors[1] : 0.0 ) +
-		 ( BM_2 & m_states[i] ? 1.0/(float)m_resistors[2] : 0.0 ) +
-		 ( BM_3 & m_states[i] ? 1.0/(float)m_resistors[3] : 0.0 ) +
-		 ( BM_4 & m_states[i] ? 1.0/(float)m_resistors[4] : 0.0 ) +
-		 ( BM_5 & m_states[i] ? 1.0/(float)m_resistors[5] : 0.0 )
-		 );
+      ( BM_1 & m_states[i] ? 1.0/(float)m_resistors[1] : 0.0 ) +
+      ( BM_2 & m_states[i] ? 1.0/(float)m_resistors[2] : 0.0 ) +
+      ( BM_3 & m_states[i] ? 1.0/(float)m_resistors[3] : 0.0 ) +
+      ( BM_4 & m_states[i] ? 1.0/(float)m_resistors[4] : 0.0 ) +
+      ( BM_5 & m_states[i] ? 1.0/(float)m_resistors[5] : 0.0 )
+      );
     Vout = (float)m_refVoltage*Req/(Req+(float)m_resistors[0]);
     m_ladder[i] = (int16_t)( 1024.0f*(float)Vout/(float)m_defaultAnalogRef );
   }
-#ifdef A5B_DEBUG
+#ifdef A5B_STATE_DBG
   for (byte i=0; i<16; i++) {
     Serial.print("ladder[");
     Serial.print(i, DEC);
@@ -103,14 +106,14 @@ byte AnalogFiveButtons::computeState(int analogReading)
   int error;
   byte index = 0;
   int minError = 1024;
-#ifdef A5B_DEBUG
+#ifdef A5B_STATE_DBG
   Serial.print("==== New reading: ");
   Serial.println(analogReading, DEC);
 #endif
 
   for (byte i=0; i<16; i++) {
     error = abs( m_ladder[i] - analogReading );
-#ifdef A5B_DEBUG
+#ifdef A5B_STATE_DBG
     Serial.print(i, DEC);
     Serial.print(" : ");
     Serial.print(m_ladder[i], DEC);
@@ -123,7 +126,7 @@ byte AnalogFiveButtons::computeState(int analogReading)
     }
   }
 
-#ifdef A5B_DEBUG
+#ifdef A5B_STATE_DBG
   Serial.print("  -> index=");
   Serial.print(index);
   Serial.print(" => ");
@@ -140,7 +143,11 @@ void AnalogFiveButtons::update()
   static byte previousStateIndex = 0;
   static int previousReading = 0;
   static unsigned int previousSampleTime = 0;
-  static byte counter = 0;
+#ifdef A5B_TIMING_DBG
+  static uint16_t measureCounter = 0;
+#endif
+  static bool acquired = false;
+  
 
   // Get current time
   unsigned long currentSampleTime = millis();
@@ -150,28 +157,48 @@ void AnalogFiveButtons::update()
 
     // Read the current analog input pin
     int currentReading = analogRead(m_analogPin);
+    
+      // Check if the reading is not varying much from the previous
+      // We basically wait for the derivative of the voltage to fall
+      // under 2 bits of accuracy (assuming that the difference 
+      // between any state is higher than 2 bits)
+      if ( abs(previousReading-currentReading) < 4 ) {
 
-    // Check if the reading is not varying much from the previous
-    if ( abs(previousReading-currentReading) < 8 ) {
-
-      counter++;	// new stable reading
-      if ( counter == m_debounceCount ) {
-	// compute the new state
-	m_currentStateIndex = computeState(currentReading);
-        // Detect the button going down
-        // if ( m_currentStateIndex != previousStateIndex ) {
-        //   m_buttonPressed = 
-        //     ~(m_states[previousStateIndex]) & m_states[m_currentStateIndex];
-        //   previousStateIndex = m_currentStateIndex;
-        // }
-        m_buttonPressed |= m_states[m_currentStateIndex];
-	counter = 0;
+        if ( !acquired ) {
+          m_counter--;	// new stable reading
+          Serial.println(m_counter, DEC);
+          if ( m_counter == 0 ) {
+            // compute the new state
+            m_currentStateIndex = computeState(currentReading);
+            // remember that we have a new measurement
+            acquired = true;
+            // Detect the button going down
+            // if ( m_currentStateIndex != previousStateIndex ) {
+            //   m_buttonPressed = 
+            //     ~(m_states[previousStateIndex]) & m_states[m_currentStateIndex];
+            //   previousStateIndex = m_currentStateIndex;
+            // }
+#ifdef A5B_TIMING_DBG
+              Serial.print("stable voltage achieved after: ");
+              Serial.println(measureCounter, DEC);
+#endif
+              m_buttonPressed |= m_states[m_currentStateIndex];
+          }
+        }
+#ifdef A5B_TIMING_DBG
+        measureCounter = 0;
+#endif
+      } // if stable reading
+      else {
+        m_counter = m_debounceSamples;
+        acquired = false;
+#ifdef A5B_TIMING_DBG
+        measureCounter++;
+#endif
       }
-
-    }
     previousReading = currentReading;
     previousSampleTime = currentSampleTime;
-
+    
   }
 }
 

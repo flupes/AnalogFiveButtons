@@ -152,9 +152,10 @@ class AnalogFiveButtons {
   float m_refVoltage;		/** reference voltage at the top of the ladder */
   float m_defaultAnalogRef;	/** default analog reference for the board */
   uint8_t m_analogPin;		/** pin used to read the analog input */
-  uint8_t m_debounceCount;	/** Number of succesives readings need to 
+  uint8_t m_debounceSamples;	/** Number of succesives readings need to 
                                 be identical before we decide the voltage is stable */
 
+  uint8_t m_counter;
   uint16_t m_msSampling;	/** Required delay between 2 successive
                                 readings (in ms) */
   uint16_t m_resistors[6];
